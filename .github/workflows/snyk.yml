@@ -20,7 +20,7 @@ jobs:
           distribution: temurin
           java-version: 17  # adjust if needed
 
-      - name: Install Maven
+      - name: Install Maven (cache enabled)
         uses: actions/setup-java@v3
         with:
           distribution: temurin
@@ -42,7 +42,7 @@ jobs:
           snyk test --all-projects --maven-executable=mvn --json-file-output=snyk-report.json || echo "Vulnerabilities found, continuing workflow."
 
       - name: Upload Snyk JSON report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: snyk-report
           path: snyk-report.json
