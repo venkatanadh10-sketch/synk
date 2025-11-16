@@ -8,48 +8,49 @@ on:
 
 jobs:
   snyk-scan:
-    name: Snyk Scan for Java
+    name: Snyk Scan for Java (Maven in subdirectory)
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4   # Use latest stable checkout
+        uses: actions/checkout@v4
 
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'   # change as per your project
+          java-version: '17'  # Change if you use a different version
 
       - name: Cache Maven Dependencies
         uses: actions/cache@v3
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('JtProject/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Build Project
-        run: mvn clean install -B
+      - name: Build Project (in JtProject)
+        run: mvn -f JtProject/pom.xml clean install -B
 
       - name: Run Snyk Test
-        uses: snyk/actions/maven@master   # Use Snyk's Maven action
+        uses: snyk/actions/maven@master
+        continue-on-error: true
+        working-directory: JtProject
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          command: test
-          args: --all-projects --json > snyk-report.json || true
+          args: test --all-projects --json=snyk-report.json
 
       - name: Upload Snyk Report
-        uses: actions/upload-artifact@v4   # Upgrade to v4
+        uses: actions/upload-artifact@v4
         with:
           name: snyk-report
-          path: snyk-report.json
+          path: JtProject/snyk-report.json
 
       - name: Monitor to Snyk Portal
         uses: snyk/actions/maven@master
+        working-directory: JtProject
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          command: monitor
-          args: --all-projects
+          args: monitor --all-projects
