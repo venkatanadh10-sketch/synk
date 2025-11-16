@@ -11,16 +11,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: 17
 
-      - name: Cache Maven Dependencies
+      - name: Cache Maven dependencies
         uses: actions/cache@v3
         with:
           path: ~/.m2/repository
@@ -34,10 +34,8 @@ jobs:
       - name: Install Snyk CLI
         run: npm install -g snyk
 
-      - name: Run Snyk Test
-        run: |
-          cd JtProject
-          snyk test --all-projects --maven-executable=mvn --json-file-output=snyk-report.json || true
+      - name: Run Snyk Test (scan only JtProject)
+        run: snyk test --all-projects --maven-executable=mvn --file=JtProject/pom.xml --json-file-output=JtProject/snyk-report.json || true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -47,9 +45,7 @@ jobs:
           name: snyk-report
           path: JtProject/snyk-report.json
 
-      - name: Monitor to Snyk Portal
-        run: |
-          cd JtProject
-          snyk monitor --all-projects --maven-executable=mvn
+      - name: Monitor JtProject in Snyk Portal
+        run: snyk monitor --maven-executable=mvn --file=JtProject/pom.xml
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
