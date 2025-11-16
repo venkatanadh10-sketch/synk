@@ -2,6 +2,10 @@ name: Snyk Security Scan
 
 on:
   workflow_dispatch:  # Allows manual run from Actions tab
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   snyk-sca:
@@ -27,14 +31,17 @@ jobs:
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      # Run Snyk test for a single Maven project
+      # Run Snyk test for the Maven project in JtProject
       - name: Snyk Test for Maven
         run: |
-          snyk test --file=pom.xml --severity-threshold=medium --sarif-file-output=snyk.sarif || echo "Vulnerabilities found, continuing workflow."
+          cd JtProject
+          snyk test --severity-threshold=medium --sarif-file-output=../snyk.sarif || echo "Vulnerabilities found, continuing workflow."
 
       # Send results to Snyk dashboard
       - name: Snyk Monitor
-        run: snyk monitor --file=pom.xml
+        run: |
+          cd JtProject
+          snyk monitor
 
       # Upload SARIF to GitHub Security
       - name: Upload SARIF to GitHub Security
