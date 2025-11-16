@@ -23,13 +23,17 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # Install Maven (for system Maven if needed)
+      # Install Maven (system Maven)
       - name: Set up Maven
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: maven
+
+      # Verify Maven installation
+      - name: Verify Maven
+        run: mvn -version
 
       # Install Snyk CLI
       - name: Install Snyk
@@ -39,15 +43,15 @@ jobs:
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      # Run Snyk test inside JtProject
+      # Run Snyk test using system Maven
       - name: Snyk Test for Maven
         working-directory: JtProject
-        run: snyk test --maven-executable=./mvnw --severity-threshold=medium --sarif-file-output=../snyk.sarif || echo "Vulnerabilities found, continuing workflow."
+        run: snyk test --maven-executable=mvn --severity-threshold=medium --sarif-file-output=../snyk.sarif || echo "Vulnerabilities found, continuing workflow."
 
       # Send results to Snyk dashboard
       - name: Snyk Monitor
         working-directory: JtProject
-        run: snyk monitor --maven-executable=./mvnw
+        run: snyk monitor --maven-executable=mvn
 
       # Upload SARIF to GitHub Security
       - name: Upload SARIF to GitHub Security
