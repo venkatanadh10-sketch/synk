@@ -1,9 +1,8 @@
-
 name: DevSecOps SCA Scan
 
 on:
   push:
-    branches: ['**']   # Trigger on push to any branch
+    branches: ['**']
   pull_request:
     branches: ['**']
 
@@ -14,13 +13,13 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4   # Use latest stable checkout
 
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'  # Adjust to your Java version
+          java-version: '17'   # change as per your project
 
       - name: Cache Maven Dependencies
         uses: actions/cache@v3
@@ -34,25 +33,23 @@ jobs:
         run: mvn clean install -B
 
       - name: Run Snyk Test
-        uses: snyk/actions@v2
+        uses: snyk/actions/maven@master   # Use Snyk's Maven action
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           command: test
           args: --all-projects --json > snyk-report.json || true
-          # '|| true' ensures build never fails even if vulnerabilities are found
 
       - name: Upload Snyk Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4   # Upgrade to v4
         with:
           name: snyk-report
           path: snyk-report.json
 
       - name: Monitor to Snyk Portal
-        uses: snyk/actions@v2
+        uses: snyk/actions/maven@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           command: monitor
           args: --all-projects
-          # This sends your current project snapshot to the Snyk portal
