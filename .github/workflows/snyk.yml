@@ -32,6 +32,9 @@ jobs:
       - name: Build Project
         run: mvn -f JtProject/pom.xml clean install -B
 
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
       - name: Run Snyk Test
         run: |
           cd JtProject
