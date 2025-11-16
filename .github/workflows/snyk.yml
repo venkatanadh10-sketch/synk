@@ -1,7 +1,7 @@
 name: Snyk Security Scan
 
 on:
-  workflow_dispatch:  # Allows manual run from Actions tab
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -23,6 +23,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      # Set up Maven
+      - name: Set up Maven
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: maven
+
       # Install Snyk CLI
       - name: Install Snyk
         run: npm install -g snyk
@@ -31,17 +39,14 @@ jobs:
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      # Run Snyk test for the Maven project in JtProject
+      # Run Snyk test pointing to the pom.xml in JtProject
       - name: Snyk Test for Maven
         run: |
-          cd JtProject
-          snyk test --severity-threshold=medium --sarif-file-output=../snyk.sarif || echo "Vulnerabilities found, continuing workflow."
+          snyk test --file=JtProject/pom.xml --maven-executable=./JtProject/mvnw --severity-threshold=medium --sarif-file-output=snyk.sarif || echo "Vulnerabilities found, continuing workflow."
 
       # Send results to Snyk dashboard
       - name: Snyk Monitor
-        run: |
-          cd JtProject
-          snyk monitor
+        run: snyk monitor --file=JtProject/pom.xml --maven-executable=./JtProject/mvnw
 
       # Upload SARIF to GitHub Security
       - name: Upload SARIF to GitHub Security
