@@ -8,7 +8,7 @@ on:
 
 jobs:
   snyk-scan:
-    name: Snyk Scan for Java (Maven in subdirectory)
+    name: Snyk Scan for Java
     runs-on: ubuntu-latest
 
     steps:
@@ -33,13 +33,11 @@ jobs:
         run: mvn -f JtProject/pom.xml clean install -B
 
       - name: Run Snyk Test
-        working-directory: JtProject   # <--- Move it here
-        uses: snyk/actions/maven@master
-        continue-on-error: true
+        run: |
+          cd JtProject
+          snyk test --all-projects --json=snyk-report.json || true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: test --all-projects --json=snyk-report.json
 
       - name: Upload Snyk Report
         uses: actions/upload-artifact@v4
@@ -48,9 +46,8 @@ jobs:
           path: JtProject/snyk-report.json
 
       - name: Monitor to Snyk Portal
-        working-directory: JtProject   # <--- Move it here
-        uses: snyk/actions/maven@master
+        run: |
+          cd JtProject
+          snyk monitor --all-projects
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: monitor --all-projects
