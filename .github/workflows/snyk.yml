@@ -1,48 +1,43 @@
 name: Snyk Security Scan
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  workflow_dispatch:  # Allows manual run from Actions tab
 
 jobs:
-  snyk-scan:
+  snyk-sca:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      # Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Java
+      # Set up JDK 17
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          distribution: temurin
-          java-version: 17  # adjust if needed
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: Install Maven (cache enabled)
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: 17
-          cache: maven
+      # Install Snyk CLI
+      - name: Install Snyk
+        run: npm install -g snyk
 
-      - name: Install Snyk CLI
-        run: |
-          curl -sL https://static.snyk.io/cli/latest/snyk-linux | sh
-          sudo mv snyk /usr/local/bin/
-
+      # Authenticate with Snyk
       - name: Authenticate Snyk
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk auth $SNYK_TOKEN
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      - name: Run Snyk test on all Maven projects
+      # Run Snyk test for a single Maven project
+      - name: Snyk Test for Maven
         run: |
-          snyk test --all-projects --maven-executable=mvn --json-file-output=snyk-report.json || echo "Vulnerabilities found, continuing workflow."
+          snyk test --file=pom.xml --severity-threshold=medium --sarif-file-output=snyk.sarif || echo "Vulnerabilities found, continuing workflow."
 
-      - name: Upload Snyk JSON report
-        uses: actions/upload-artifact@v4
+      # Send results to Snyk dashboard
+      - name: Snyk Monitor
+        run: snyk monitor --file=pom.xml
+
+      # Upload SARIF to GitHub Security
+      - name: Upload SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v2
         with:
-          name: snyk-report
-          path: snyk-report.json
+          sarif_file: snyk.sarif
