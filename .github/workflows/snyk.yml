@@ -8,11 +8,10 @@ on:
 
 jobs:
   snyk-scan:
-    name: Snyk Scan for Java
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Set up Java
@@ -35,14 +34,10 @@ jobs:
       - name: Install Snyk CLI
         run: npm install -g snyk
 
-      - name: Make Maven Wrapper Executable
-        run: chmod +x JtProject/mvnw
-
-      - name: Run Snyk Test
+      - name: Run Snyk Test (using system Maven)
         run: |
           cd JtProject
-          # Use Maven directly or ./mvnw
-          snyk test --all-projects --json=snyk-report.json || true
+          snyk test --all-projects --maven-executable=mvn --json=snyk-report.json || true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -55,6 +50,6 @@ jobs:
       - name: Monitor to Snyk Portal
         run: |
           cd JtProject
-          snyk monitor --all-projects
+          snyk monitor --all-projects --maven-executable=mvn
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
