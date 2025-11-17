@@ -1,9 +1,13 @@
-name: Snyk Security Scan
+name: Snyk Security Scan — Fail on Vulnerabilities
 
 on:
-  workflow_dispatch:   # Manual run from Actions tab
-  push:                # Trigger on ANY branch push
-  pull_request:        # Trigger on ANY branch PR
+  push:
+    branches:
+      - main        # Default branch
+  pull_request:
+    branches:
+      - main        # PRs targeting main
+  workflow_dispatch: # Optional: manual trigger
 
 jobs:
   snyk-sca:
@@ -34,10 +38,10 @@ jobs:
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      # Run Snyk test using system Maven
+      # Run Snyk test and FAIL if vulnerabilities found
       - name: Snyk Test for Maven
         working-directory: JtProject
-        run: snyk test --maven-executable=mvn --severity-threshold=medium || echo "Vulnerabilities found, continuing workflow."
+        run: snyk test --maven-executable=mvn --severity-threshold=medium
 
       # Send results to Snyk dashboard
       - name: Snyk Monitor
