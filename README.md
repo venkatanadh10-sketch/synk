@@ -20,7 +20,7 @@ kkkkk
 
 
 ## Features
-- ⚙️Spring Mvc, JDBC , Jsp Servlet
+- ⚙️Spring Mvc, JDBC , Jsp Servlet yess
 - 📝ADMIN MODULE + USER MODULE
 - ➕CRUD OPERATION
 - 🌱Easy to understand beginner friendly.
