@@ -1,4 +1,4 @@
-name: Snyk Security Scan — Fail on Vulnerabilities
+name: Snyk Security Scan — Quality Gate
 
 on:
   push:
@@ -34,12 +34,12 @@ jobs:
       - name: Install Snyk
         run: npm install -g snyk
 
-      # Authenticate with Snyk
+      # Authenticate Snyk
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      # Run Snyk test and FAIL if vulnerabilities found
-      - name: Snyk Test for Maven
+      # Run Snyk test and FAIL on medium, high, or critical
+      - name: Snyk Test for Maven (Quality Gate)
         working-directory: JtProject
         run: snyk test --maven-executable=mvn --severity-threshold=medium
 
