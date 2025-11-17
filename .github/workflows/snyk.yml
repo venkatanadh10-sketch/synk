@@ -1,15 +1,9 @@
 name: Snyk Security Scan
 
 on:
-  workflow_dispatch:      # Allows manual trigger from Actions tab
-
-  push:                   # Runs on push to ANY branch
-    branches:
-      - '**'
-
-  pull_request:           # Runs on pull request from ANY branch
-    branches:
-      - '**'
+  workflow_dispatch:   # Manual run from Actions tab
+  push:                # Trigger on ANY branch push
+  pull_request:        # Trigger on ANY branch PR
 
 jobs:
   snyk-sca:
