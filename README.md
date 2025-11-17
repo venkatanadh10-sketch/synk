@@ -20,7 +20,7 @@ kkkkk
 
 
 ## Features
-- ⚙️Spring Mvc, JDBC , Jsp Servlet yess
+- ⚙️Spring Mvc, JDBC , Jsp Servlet yess test
 - 📝ADMIN MODULE + USER MODULE
 - ➕CRUD OPERATION
 - 🌱Easy to understand beginner friendly.
