@@ -1,9 +1,14 @@
 name: Snyk Security Scan
 
+# Trigger only on default branch
 on:
-  workflow_dispatch:   # Manual run from Actions tab
-  push:                # Trigger on ANY branch push
-  pull_request:        # Trigger on ANY branch PR
+  push:
+    branches:
+      - main        # Replace with your default branch name if different
+  pull_request:
+    branches:
+      - main        # Runs on PRs targeting main
+  workflow_dispatch: # Optional: manual trigger from Actions tab
 
 jobs:
   snyk-sca:
@@ -30,7 +35,7 @@ jobs:
       - name: Install Snyk
         run: npm install -g snyk
 
-      # Authenticate with Snyk
+      # Authenticate Snyk
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
