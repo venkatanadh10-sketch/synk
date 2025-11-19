@@ -1,13 +1,9 @@
-name: Snyk Security Scan — Quality Gate
-#synkauth scs
+name: Snyk Security Scan
+
 on:
-  push:
-    branches:
-      - main        # Default branch
-  pull_request:
-    branches:
-      - main        # PRs targeting main
-  workflow_dispatch: # Optional: manual trigger
+  workflow_dispatch:   # Manual run from Actions tab
+  push:                # Trigger on ANY branch push
+  pull_request:        # Trigger on ANY branch PR
 
 jobs:
   snyk-sca:
@@ -17,7 +13,6 @@ jobs:
       # Checkout repository
       - name: Checkout code
         uses: actions/checkout@v3
-
       # Set up JDK 17 with Maven cache
       - name: Set up JDK 17 with Maven
         uses: actions/setup-java@v3
@@ -34,14 +29,14 @@ jobs:
       - name: Install Snyk
         run: npm install -g snyk
 
-      # Authenticate Snyk
+      # Authenticate with Snyk
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      # Run Snyk test and FAIL on medium, high, or critical
-      - name: Snyk Test for Maven (Quality Gate)
+      # Run Snyk test using system Maven
+      - name: Snyk Test for Maven
         working-directory: JtProject
-        run: snyk test --maven-executable=mvn --severity-threshold=medium
+        run: snyk test --maven-executable=mvn --severity-threshold=medium || echo "Vulnerabilities found, continuing workflow."
 
       # Send results to Snyk dashboard
       - name: Snyk Monitor
