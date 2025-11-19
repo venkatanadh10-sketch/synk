@@ -1,5 +1,5 @@
 name: Snyk Security Scan — Quality Gate
-
+#synkauth scs
 on:
   push:
     branches:
